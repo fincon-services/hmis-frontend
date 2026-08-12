@@ -36,9 +36,10 @@ apiClient.interceptors.response.use(
     if (status === 401) {
       const hadSession = !!useAuthStore.getState().token;
       useAuthStore.getState().clearSession();
-      if (!window.location.pathname.startsWith('/login')) {
+      const loginPath = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/login`;
+      if (!window.location.pathname.includes('/login')) {
         if (hadSession) sessionStorage.setItem('hmis-session-expired', '1');
-        window.location.assign('/login');
+        window.location.assign(loginPath);
       }
     }
 

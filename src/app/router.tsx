@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, Link } from "react-router-dom";
 import { Result, Button } from "antd";
 import { AuthGuard, GuestGuard } from "./guards/AuthGuard";
 import { AppShell } from "@/components/layout/AppShell";
@@ -564,9 +564,9 @@ function NotFoundPage() {
       title="Page not found"
       subTitle="The page you're looking for doesn't exist."
       extra={
-        <Button type="primary" href="/dashboard">
-          Back to Dashboard
-        </Button>
+        <Link to="/dashboard">
+          <Button type="primary">Back to Dashboard</Button>
+        </Link>
       }
     />
   );
