@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "hmis-frontend",
+      "runtimeExecutable": "D:/laragon/bin/nodejs/node-v18/node.exe",
+      "runtimeArgs": ["D:/hmis_frontend/node_modules/vite/bin/vite.js"],
+      "port": 5173
+    }
+  ]
+}

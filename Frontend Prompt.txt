@@ -1,0 +1,1448 @@
+
+
+You are working on the frontend for a **Hospital Management Information System (HMIS)**.
+
+The Laravel backend/API has already been developed. Your task is to build a **production-quality, comprehensive React frontend** that consumes the hmis backend you have developed.
+
+## 1. IMPORTANT — START WITH API ANALYSIS
+
+Before writing significant frontend code:
+
+1. Read the **entire attached Swagger/OpenAPI JSON**, not just the first few endpoints.
+2. Analyze every:
+
+   * API tag/module
+   * endpoint
+   * HTTP method
+   * request parameters
+   * request body
+   * response structure
+   * validation rules
+   * authentication requirements
+   * authorization/role requirements
+   * pagination
+   * filtering
+   * sorting
+   * bulk operations
+   * file uploads
+   * workflow/state transitions
+3. Identify relationships between modules and entities.
+4. Identify which endpoints represent:
+
+   * Master data
+   * Transactions
+   * Clinical workflows
+   * Queues
+   * Approvals
+   * Reports
+   * Configuration
+   * Administration
+5. Create a frontend module map before implementing the UI.
+
+The API documentation states that this is the REST API backend for an HMIS and that the API base path is `/api/v1`. Authentication is based on Laravel Sanctum. Do not invent APIs when an equivalent API already exists in Swagger.
+
+For example, the API contains HR setup/master-data screens, ambulance management and trip workflows, pharmacy prescription/dispensing workflows, radiology prescriptions/results, procurement functionality, etc. These should be represented as coherent frontend modules rather than generic CRUD pages.
+
+---
+
+# 2. TECHNOLOGY STACK
+
+Use:
+
+* React
+* TypeScript
+* Vite
+* React Router
+* TanStack React Query
+* Zustand
+* Axios
+* React Hook Form
+* Zod
+* Ant Design OR another mature enterprise UI library if already selected in the project
+* Lucide React or an equivalent professional icon library
+* date-fns/dayjs where appropriate
+
+Prefer **Ant Design** for the enterprise/government application unless the existing project already has another UI system.
+
+Do NOT introduce unnecessary libraries.
+
+The frontend must be strongly typed.
+
+Avoid:
+
+* JavaScript files where TypeScript is appropriate
+* `any`
+* duplicated API logic
+* duplicated form logic
+* duplicated table implementations
+* hardcoded API responses
+* mock data in production screens
+* unnecessary global state
+* fetching data manually inside `useEffect`
+* giant monolithic components
+
+---
+
+# 3. FIRST — INSPECT THE EXISTING PROJECT
+
+Before creating files:
+
+1. Inspect the existing repository.
+2. Determine:
+
+   * current React/Vite configuration
+   * package manager
+   * existing dependencies
+   * existing components
+   * existing routing
+   * existing styling
+   * existing environment configuration
+   * whether any frontend screens already exist
+3. Preserve useful existing architecture.
+4. Do not unnecessarily rewrite working code.
+
+If the repository is empty or only partially initialized, create a clean enterprise React architecture.
+
+---
+
+# 4. FRONTEND ARCHITECTURE
+
+Use a **feature/module-oriented architecture**.
+
+Suggested structure:
+
+```text
+src/
+├── app/
+│   ├── App.tsx
+│   ├── router.tsx
+│   ├── providers/
+│   │   ├── QueryProvider.tsx
+│   │   └── AppProviders.tsx
+│   └── guards/
+│       ├── AuthGuard.tsx
+│       └── PermissionGuard.tsx
+│
+├── api/
+│   ├── client.ts
+│   ├── interceptors.ts
+│   ├── types.ts
+│   └── queryClient.ts
+│
+├── components/
+│   ├── common/
+│   ├── layout/
+│   ├── forms/
+│   ├── tables/
+│   ├── feedback/
+│   └── modals/
+│
+├── features/
+│   ├── auth/
+│   ├── dashboard/
+│   ├── administration/
+│   ├── hr/
+│   ├── patients/
+│   ├── opd/
+│   ├── er/
+│   ├── ipd/
+│   ├── pharmacy/
+│   ├── laboratory/
+│   ├── radiology/
+│   ├── ambulance/
+│   ├── procurement/
+│   ├── inventory/
+│   ├── billing/
+│   ├── approvals/
+│   ├── reports/
+│   └── settings/
+│
+├── hooks/
+├── stores/
+├── routes/
+├── types/
+├── utils/
+├── constants/
+└── styles/
+```
+
+Adjust the modules based on the **actual Swagger documentation**.
+
+Do not assume that every suggested module exists in the API. Only create modules supported by the API, while grouping related endpoints logically.
+
+---
+
+# 5. API LAYER
+
+Create a centralized Axios client.
+
+Example conceptual architecture:
+
+```text
+api/
+  client.ts
+
+features/
+  patients/
+    api/
+      patientApi.ts
+    hooks/
+      usePatients.ts
+      usePatient.ts
+      useCreatePatient.ts
+      useUpdatePatient.ts
+    types/
+      patient.types.ts
+```
+
+Use Axios interceptors for:
+
+* authentication
+* common headers
+* error handling
+* 401 handling
+* 403 handling
+* request correlation if appropriate
+
+The API base URL must come from environment configuration:
+
+```env
+VITE_API_BASE_URL=
+```
+
+Do not hardcode production URLs.
+
+The API currently exposes versioned routes under:
+
+```text
+/api/v1
+```
+
+and uses Sanctum authentication.
+
+---
+
+# 6. REACT QUERY
+
+Use TanStack React Query as the primary server-state mechanism.
+
+Do NOT put API/server data into Zustand unnecessarily.
+
+For every major resource create appropriate:
+
+```text
+useQuery
+useMutation
+useInfiniteQuery
+```
+
+where appropriate.
+
+Use stable query keys.
+
+Example:
+
+```ts
+queryKeys.patients.list(filters)
+queryKeys.patients.detail(id)
+queryKeys.pharmacy.pendingDispense()
+```
+
+Implement:
+
+* loading states
+* error states
+* empty states
+* optimistic updates only where safe
+* invalidation after mutations
+* refetch behavior
+* pagination
+* filters
+* sorting
+
+Avoid manual `useEffect` data fetching.
+
+---
+
+# 7. ZUSTAND
+
+Use Zustand only for **client/application state**, for example:
+
+* authenticated user/session UI state
+* sidebar collapsed state
+* selected facility/context if applicable
+* UI preferences
+* global filters where truly necessary
+* modal/drawer state where appropriate
+
+Do NOT duplicate React Query server state in Zustand.
+
+Keep stores small and domain-specific.
+
+---
+
+# 8. TYPESCRIPT
+
+Everything should be strongly typed.
+
+Create TypeScript types/interfaces corresponding to the Swagger schemas.
+
+Examples:
+
+```ts
+interface Patient {
+  id: number;
+  // ...
+}
+
+interface PaginationMeta {
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+}
+```
+
+Do not use:
+
+```ts
+any
+```
+
+unless absolutely unavoidable due to an undocumented API response, and if that happens isolate it and document why.
+
+Prefer:
+
+```ts
+unknown
+```
+
+with runtime validation where appropriate.
+
+---
+
+# 9. API RESPONSE HANDLING
+
+The Laravel API may return different response structures for different endpoints.
+
+Do not blindly assume every endpoint has the same response shape.
+
+Inspect the Swagger documentation carefully and build appropriate response types.
+
+Create reusable utilities for:
+
+* paginated responses
+* validation errors
+* API errors
+* success messages
+* file responses
+* empty responses
+
+Laravel validation errors such as HTTP `422` must be translated into useful form-level validation messages.
+
+For example:
+
+```text
+The selected currency is invalid.
+The maximum salary must be greater than the minimum salary.
+```
+
+Display errors next to the relevant field whenever possible.
+
+---
+
+# 10. AUTHENTICATION & AUTHORIZATION
+
+Implement a complete authentication flow based on the actual API documentation.
+
+Requirements:
+
+* Login
+* Logout
+* Session/user retrieval if supported
+* Protected routes
+* Authentication persistence according to backend requirements
+* 401 handling
+* 403 handling
+* Permission-aware navigation
+* Permission-aware actions
+
+The Swagger documentation includes authorization scenarios where a user may be authenticated but lack a particular screen grant.
+
+For example, the pay-grade API documents a `403` response when the role lacks the relevant screen grant.
+
+Therefore:
+
+**Do not simply hide unauthorized screens visually.**
+
+The frontend should have a proper permission architecture:
+
+```text
+PermissionGuard
+Can()
+usePermission()
+```
+
+Example:
+
+```tsx
+<Can permission="admin.pay-grades">
+  <Button>Create Pay Grade</Button>
+</Can>
+```
+
+But always treat the backend as the final authority.
+
+---
+
+# 11. APPLICATION SHELL
+
+Create a professional HMIS application shell.
+
+Layout:
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│ Header                                                       │
+│ Logo | Hospital/HMIS | Search | Notifications | User        │
+├───────────────┬─────────────────────────────────────────────┤
+│               │                                             │
+│ Sidebar       │ Breadcrumb                                  │
+│               │                                             │
+│ Dashboard     │ Page Title                                  │
+│ Patients      │                                             │
+│ OPD           │ Content                                     │
+│ Emergency     │                                             │
+│ IPD           │                                             │
+│ Pharmacy      │                                             │
+│ Laboratory    │                                             │
+│ Radiology     │                                             │
+│ Ambulance     │                                             │
+│ Procurement   │                                             │
+│ HR            │                                             │
+│ Reports       │                                             │
+│ Administration│                                             │
+│               │                                             │
+└───────────────┴─────────────────────────────────────────────┘
+```
+
+The sidebar should:
+
+* support collapse
+* support nested menus
+* highlight active route
+* hide unauthorized modules
+* remember collapsed state
+* work responsively
+
+---
+
+# 12. UI / UX DESIGN
+
+The system should look like a **modern government/enterprise healthcare information system**.
+
+Do NOT make it look like:
+
+* a startup dashboard
+* a social media application
+* a flashy SaaS landing page
+* a cryptocurrency dashboard
+* an overly colorful admin template
+
+The visual language should communicate:
+
+* reliability
+* authority
+* transparency
+* professionalism
+* accessibility
+* information density
+* operational efficiency
+
+### Recommended visual direction
+
+Use:
+
+* white/light gray backgrounds
+* dark navy/blue-gray text
+* restrained institutional blue/teal accents
+* subtle borders
+* moderate corner radius
+* compact but readable tables
+* clear hierarchy
+* professional typography
+* consistent spacing
+* minimal shadows
+* accessible contrast
+
+Avoid excessive gradients.
+
+Avoid excessive rounded cards.
+
+Avoid unnecessary animations.
+
+Use color primarily to communicate:
+
+* status
+* warnings
+* errors
+* success
+* workflow state
+
+---
+
+# 13. DESIGN SYSTEM
+
+Create a reusable design system.
+
+Define:
+
+* colors
+* typography
+* spacing
+* border radius
+* shadows
+* table styles
+* form styles
+* button variants
+* status colors
+
+Create reusable components:
+
+```text
+PageHeader
+PageContainer
+Breadcrumbs
+DataTable
+SearchInput
+FilterBar
+FilterDrawer
+FormModal
+ConfirmDialog
+StatusBadge
+EmptyState
+ErrorState
+LoadingState
+StatCard
+DetailCard
+SectionCard
+ActionMenu
+Pagination
+DateRangePicker
+FileUpload
+```
+
+The goal is that a new CRUD screen should require very little duplicated UI code.
+
+---
+
+# 14. DATA TABLE STANDARD
+
+HMIS will have many administrative and operational tables.
+
+Create a standardized enterprise DataTable supporting:
+
+* server-side pagination
+* server-side sorting
+* search
+* filters
+* column visibility
+* row selection
+* bulk actions
+* loading state
+* empty state
+* error state
+* responsive behavior
+* export action if supported
+* action menu
+* status badges
+
+Example:
+
+```text
+┌───────────────────────────────────────────────────────────────┐
+│ Job Categories                               + Add New        │
+├───────────────────────────────────────────────────────────────┤
+│ Search...     Status ▼       Filters ▼                        │
+├───┬───────────────┬──────────────┬───────────┬───────────────┤
+│ □ │ Name          │ Status       │ Updated   │ Actions       │
+├───┼───────────────┼──────────────┼───────────┼───────────────┤
+│ □ │ Nursing       │ Active       │ ...       │ ⋮             │
+│ □ │ Administration│ Active       │ ...       │ ⋮             │
+└───┴───────────────┴──────────────┴───────────┴───────────────┘
+```
+
+---
+
+# 15. CRUD PATTERN
+
+For every CRUD resource supported by the API:
+
+```text
+List
+ ├── Search
+ ├── Filters
+ ├── Sort
+ ├── Pagination
+ ├── View
+ ├── Edit
+ ├── Delete
+ └── Bulk Delete
+
+Create
+Edit
+View
+Delete confirmation
+```
+
+But do NOT force CRUD behavior onto workflow-based endpoints.
+
+For example, an ambulance trip is not simply a CRUD record.
+
+The API defines explicit operational workflows such as:
+
+```text
+Dispatch Ambulance
+        ↓
+Trip In Progress
+        ↓
+Return Ambulance
+        ↓
+Completed
+```
+
+The frontend should represent this as a workflow rather than generic "Edit/Delete".
+
+The Swagger specifically documents the ambulance return operation and its validation rules. Respect these backend rules in the UI.
+
+---
+
+# 16. WORKFLOW UI
+
+For transactional/clinical workflows, use appropriate UX:
+
+* queues
+* status badges
+* workflow steps
+* timeline
+* action panels
+* confirmation dialogs
+* drawers
+* detail pages
+* contextual actions
+
+Example:
+
+```text
+PATIENT
+────────────────────────────────────────
+
+Patient: Muhammad Ali
+MRN: 000123
+
+Current Status
+● OPD Visit
+
+────────────────────────────────────────
+Clinical Workflow
+
+Registration → Consultation → Lab → Pharmacy
+                  ●
+
+────────────────────────────────────────
+Available Actions
+
+[ Consultation ]
+[ Prescribe Lab ]
+[ Prescribe Radiology ]
+[ Prescription ]
+```
+
+Do not make every workflow look like a database table.
+
+---
+
+# 17. PATIENT-CENTRIC DESIGN
+
+Where supported by the API, make the patient the central clinical entity.
+
+A patient detail screen should become a hub for relevant information such as:
+
+```text
+Patient Overview
+├── Demographics
+├── Visits
+├── OPD
+├── Emergency
+├── IPD
+├── Prescriptions
+├── Laboratory
+├── Radiology
+├── Billing
+└── History
+```
+
+For example, the API exposes patient-wide pharmacy prescription history and patient-wide radiology prescription history. These should be represented naturally within the patient context rather than forcing users to navigate through unrelated administrative menus.
+
+---
+
+# 18. PHARMACY
+
+Implement pharmacy workflows based strictly on Swagger.
+
+The API includes:
+
+* patient prescription history
+* pending dispense queue
+* prescription dispensing
+* stock-related behavior
+
+The API documentation specifies that dispensing may perform FEFO stock deduction when the medicine is linked to a warehouse item.
+
+The UI should therefore make the operational state clear:
+
+```text
+Pending Dispensing
+────────────────────────────────────────
+
+Prescription #1234
+Patient: ...
+Medicine: ...
+Quantity: ...
+
+[View Prescription] [Dispense]
+```
+
+After dispensing:
+
+* show success notification
+* invalidate relevant queries
+* update queue
+* prevent duplicate dispensing
+
+Do not implement stock logic independently in the frontend. The backend remains authoritative.
+
+---
+
+# 19. RADIOLOGY
+
+Implement the radiology workflow according to Swagger.
+
+The API supports:
+
+* prescriptions by OPD visit
+* patient radiology history
+* result upload
+* uploaded result metadata
+
+Result upload is a multipart file operation.
+
+Build a professional upload UI:
+
+```text
+Radiology Result
+
+Prescription #1234
+
+Upload Result
+┌──────────────────────────────────────┐
+│ Drag & Drop file                     │
+│ or                                   │
+│ [ Select File ]                      │
+└──────────────────────────────────────┘
+
+Description: ______________________
+
+View Number: [ 1 ]
+
+[ Upload Result ]
+```
+
+Show upload progress and backend validation errors.
+
+---
+
+# 20. AMBULANCE
+
+Create a dedicated ambulance module.
+
+Based on the API, this includes concepts such as:
+
+* vehicles
+* drivers
+* destination hospitals
+* trips
+* trip reports
+* dispatch
+* return/closing trip
+
+Dispatch has different UI requirements for:
+
+```text
+In-house ambulance
+External ambulance
+```
+
+The frontend should dynamically change the form based on ambulance type.
+
+For example:
+
+### In-house
+
+```text
+Vehicle
+Driver
+Opening Reading
+```
+
+### External
+
+```text
+External Vehicle Number
+External Driver Name
+External Driver CNIC
+External Driver Contact
+```
+
+Do not show irrelevant fields.
+
+The backend's validation remains authoritative.
+
+---
+
+# 21. ADMINISTRATION / HR SETUP
+
+The Swagger includes numerous HR setup/master-data resources such as:
+
+* currencies
+* education levels
+* employment statuses
+* job categories
+* job titles
+* languages
+* pay grades
+* skills
+* work shifts
+
+These should have a consistent administration UX.
+
+For example:
+
+```text
+Administration
+  └── HR Setup
+       ├── Currencies
+       ├── Education Levels
+       ├── Employment Statuses
+       ├── Job Categories
+       ├── Job Titles
+       ├── Languages
+       ├── Pay Grades
+       ├── Skills
+       └── Work Shifts
+```
+
+The API supports search/pagination and CRUD for these resources.
+
+Use reusable generic patterns rather than creating nine completely independent implementations.
+
+---
+
+# 22. FORMS
+
+Use:
+
+```text
+React Hook Form
++
+Zod
+```
+
+for complex forms.
+
+Requirements:
+
+* field validation
+* API validation mapping
+* dirty state
+* unsaved changes protection where appropriate
+* accessible labels
+* required indicators
+* help text
+* error messages
+* disabled/loading submit state
+
+For conditional forms, use schema refinement and conditional rendering.
+
+---
+
+# 23. CONFIRMATION UX
+
+Dangerous actions must require confirmation:
+
+* delete
+* bulk delete
+* dispense
+* dispatch
+* return
+* approval/rejection
+* irreversible workflow transitions
+
+Do not use browser:
+
+```ts
+window.confirm()
+```
+
+Use proper modal/dialog components.
+
+---
+
+# 24. NOTIFICATIONS
+
+Implement a global notification system.
+
+Examples:
+
+```text
+Success:
+"Job category created successfully."
+
+Error:
+"Unable to save job category."
+
+Validation:
+"Please correct the highlighted fields."
+
+Permission:
+"You do not have permission to perform this action."
+```
+
+Map Laravel/API errors into useful messages.
+
+Never display raw technical stack traces to users.
+
+---
+
+# 25. LOADING / EMPTY / ERROR STATES
+
+Every screen must handle:
+
+### Loading
+
+Use skeletons/spinners appropriate to the UI.
+
+### Empty
+
+Example:
+
+```text
+No job categories found.
+
+Try changing your search criteria
+or create a new job category.
+
+[ Add Job Category ]
+```
+
+### Error
+
+Example:
+
+```text
+Unable to load job categories.
+
+Please try again.
+
+[ Retry ]
+```
+
+Do not leave blank screens.
+
+---
+
+# 26. RESPONSIVE DESIGN
+
+The primary environment is desktop government/office use.
+
+Optimize primarily for:
+
+* 1366×768
+* 1440×900
+* 1920×1080
+
+But maintain usable behavior on:
+
+* tablets
+* smaller laptops
+
+Tables may become horizontally scrollable rather than destroying usability.
+
+---
+
+# 27. ACCESSIBILITY
+
+Follow WCAG-oriented practices:
+
+* keyboard navigation
+* visible focus states
+* semantic HTML
+* accessible labels
+* sufficient contrast
+* ARIA only where necessary
+* proper form error association
+* no color-only status indicators
+
+---
+
+# 28. ROUTING
+
+Use a clear route hierarchy.
+
+Example:
+
+```text
+/login
+
+/dashboard
+
+/patients
+/patients/:id
+
+/opd
+/opd/visits/:id
+
+/pharmacy
+/pharmacy/pending
+/pharmacy/prescriptions/:id
+
+/laboratory
+/radiology
+
+/ambulance
+/ambulance/vehicles
+/ambulance/drivers
+/ambulance/trips
+
+/procurement
+
+/hr
+/hr/employees
+/hr/setup/...
+
+/administration
+
+/reports
+/settings
+```
+
+Adjust this based on the actual Swagger modules.
+
+Use lazy-loaded routes for large modules.
+
+---
+
+# 29. DASHBOARD
+
+Create a professional HMIS dashboard.
+
+Do not invent fake metrics unless the API provides dashboard/statistical endpoints.
+
+If dashboard statistics are not available:
+
+* create a useful operational dashboard using available list endpoints only where appropriate
+* or create clearly identified placeholders for future API integration
+
+Do NOT fabricate real hospital statistics.
+
+Potential dashboard sections:
+
+```text
+HMIS Dashboard
+
+Today's Overview
+
+[ Patients ] [ OPD Visits ] [ Emergency ] [ Admissions ]
+
+Operational Queues
+
+Pending Laboratory
+Pending Radiology
+Pending Pharmacy
+Pending Approvals
+
+Ambulance
+
+Active Trips
+Available Vehicles
+
+Recent Activity
+```
+
+Only populate metrics that can actually be obtained from the backend.
+
+---
+
+# 30. REPORTING
+
+Inspect the Swagger for all report endpoints.
+
+Reports should have:
+
+* date filters
+* department filters where available
+* export functionality only if backend supports it
+* print-friendly views where useful
+* server-side data loading
+
+Do not calculate large reports entirely in the browser.
+
+---
+
+# 31. FILE UPLOADS
+
+Create reusable file upload infrastructure.
+
+Support:
+
+* multipart/form-data
+* file validation
+* size validation
+* upload progress
+* cancellation where practical
+* preview where appropriate
+* error handling
+
+Radiology result upload is one known example from the API.
+
+---
+
+# 32. PERFORMANCE
+
+This is a large enterprise application.
+
+Implement:
+
+* route-level lazy loading
+* React Query caching
+* pagination
+* debounced search
+* memoization only where useful
+* virtualized lists only where actually necessary
+* avoid unnecessary global re-renders
+* avoid loading entire datasets when pagination is supported
+
+Never request thousands of records simply to populate a dropdown if the API provides a better mechanism.
+
+---
+
+# 33. SECURITY
+
+Frontend security requirements:
+
+* never hardcode credentials
+* never expose secrets
+* use environment variables
+* sanitize/escape user-generated content
+* handle session expiration
+* protect routes
+* do not trust frontend permissions
+* do not store sensitive information unnecessarily in localStorage
+* follow the authentication mechanism required by Laravel Sanctum
+
+Remember:
+
+**Frontend authorization is a UX feature. Backend authorization is the security boundary.**
+
+---
+
+# 34. CODE QUALITY
+
+Follow these rules:
+
+* strict TypeScript
+* small focused components
+* feature-based organization
+* reusable hooks
+* reusable API functions
+* no duplicated business logic
+* no duplicated table code
+* no magic strings where constants are appropriate
+* meaningful naming
+* no unnecessary abstraction
+* comments only where they explain non-obvious decisions
+
+Prefer composition over huge components.
+
+---
+
+# 35. API CONTRACT RULE
+
+This is extremely important.
+
+The Swagger/OpenAPI documentation is the source of truth for the frontend API contract.
+
+Do NOT:
+
+* invent endpoints
+* change endpoint URLs
+* invent request fields
+* assume response fields
+* change enum values
+* assume undocumented relationships
+* silently compensate for backend behavior
+
+If something required by the frontend is missing from Swagger:
+
+1. Identify it.
+2. Document the gap.
+3. Implement everything that can be implemented.
+4. Clearly list the backend change/API addition required.
+
+Do not silently invent a backend API.
+
+---
+
+# 36. IMPLEMENTATION STRATEGY
+
+Do not attempt to generate the entire application blindly in one pass.
+
+Work in phases.
+
+## Phase 1 — Discovery
+
+Analyze the entire Swagger.
+
+Produce:
+
+```text
+API Module Map
+Entity Map
+Authentication Model
+Authorization Model
+Route Map
+Frontend Feature Map
+Reusable Component Map
+Potential API Gaps
+```
+
+Then inspect the repository.
+
+## Phase 2 — Foundation
+
+Implement:
+
+* Vite configuration
+* TypeScript
+* Axios client
+* React Query
+* Zustand
+* routing
+* authentication architecture
+* application shell
+* theme/design system
+* reusable components
+* error handling
+
+## Phase 3 — Core Modules
+
+Implement the major operational modules identified from Swagger.
+
+## Phase 4 — Administration
+
+Implement master-data and HR setup modules.
+
+## Phase 5 — Clinical Workflows
+
+Implement:
+
+* patient-centric workflows
+* OPD
+* ER
+* IPD
+* laboratory
+* radiology
+* pharmacy
+* ambulance
+
+based strictly on available endpoints.
+
+## Phase 6 — Procurement / Inventory / Other Modules
+
+Implement all remaining Swagger-supported modules.
+
+## Phase 7 — Reports
+
+Implement all report endpoints.
+
+## Phase 8 — QA
+
+Test:
+
+* authentication
+* permissions
+* CRUD
+* pagination
+* filtering
+* validation
+* workflows
+* file uploads
+* error states
+* responsive behavior
+
+---
+
+# 37. TESTING
+
+Add appropriate tests for important logic.
+
+At minimum test:
+
+* API client
+* authentication behavior
+* permission guards
+* form validation
+* critical mutations
+* workflow transitions
+* reusable table behavior
+
+For critical workflows, test both successful and failed API responses.
+
+---
+
+# 38. DEVELOPMENT APPROACH
+
+When implementing each module:
+
+### Step 1
+
+Understand its API endpoints.
+
+### Step 2
+
+Define TypeScript models.
+
+### Step 3
+
+Create API functions.
+
+### Step 4
+
+Create React Query hooks.
+
+### Step 5
+
+Create list page.
+
+### Step 6
+
+Create create/edit forms.
+
+### Step 7
+
+Create detail page where appropriate.
+
+### Step 8
+
+Implement permissions.
+
+### Step 9
+
+Implement loading/error/empty states.
+
+### Step 10
+
+Test against the actual API.
+
+Do not move to the next module while leaving the previous module half implemented.
+
+---
+
+# 39. IMPORTANT: USE REAL API DATA
+
+Do not build a visually impressive prototype with fake data.
+
+The goal is:
+
+**A functional frontend for the existing Laravel HMIS backend.**
+
+Every implemented screen should actually communicate with the backend.
+
+If the API is unavailable during development, use temporary development mocks only behind a clearly isolated abstraction and make it easy to disable them.
+
+---
+
+# 40. FINAL QUALITY STANDARD
+
+The final frontend should feel like a serious government healthcare information platform used by:
+
+* hospital administration
+* doctors
+* nurses
+* pharmacy staff
+* laboratory staff
+* radiology staff
+* HR
+* procurement
+* management
+* operational staff
+
+It should be:
+
+**Professional + clean + information-dense + accessible + reliable + maintainable.**
+
+It should not feel like a generic React admin template.
+
+---
+
+# 41. DELIVERABLES
+
+At completion provide:
+
+1. Complete React frontend.
+2. TypeScript architecture.
+3. API integration.
+4. Authentication.
+5. Authorization/permission system.
+6. React Query setup.
+7. Zustand stores where appropriate.
+8. Reusable design system.
+9. Reusable data tables/forms.
+10. All Swagger-supported frontend modules.
+11. Loading/error/empty states.
+12. Responsive layout.
+13. File upload handling.
+14. Validation.
+15. Workflow-specific UX.
+16. README with:
+
+    * installation
+    * environment variables
+    * development
+    * production build
+    * API configuration
+    * architecture
+    * module structure
+17. A documented list of any API gaps discovered in Swagger.
+
+---
+
+# 42. MOST IMPORTANT INSTRUCTION
+
+**Do not optimize for writing the most code. Optimize for building the correct architecture.**
+
+First understand the complete API.
+
+Then build reusable foundations.
+
+Then build modules systematically.
+
+Do not create 50 independent CRUD implementations when 1 reusable pattern can handle them.
+
+Do not sacrifice maintainability for speed.
+
+Do not invent backend functionality.
+
+Do not use mock data as a substitute for API integration.
+
+The result should be a frontend that can realistically be deployed as the production UI for the existing Laravel HMIS backend.
