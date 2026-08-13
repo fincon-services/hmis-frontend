@@ -5,7 +5,8 @@ import { Trash2, Send } from 'lucide-react';
 import { PageContainer } from '@/components/common/PageContainer';
 import { PageHeader } from '@/components/common/PageHeader';
 import { SectionCard } from '@/components/common/SectionCard';
-import { DetailCard } from '@/components/common/DetailCard';
+import { DetailGrid } from '@/components/common/DetailGrid';
+import { DetailItem } from '@/components/common/DetailItem';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { LoadingState } from '@/components/feedback/LoadingState';
 import { ErrorState } from '@/components/feedback/ErrorState';
@@ -183,16 +184,14 @@ export function BloodBagDetailPage() {
       />
 
       <SectionCard title="Bag Details">
-        <DetailCard
-          fields={[
-            { label: 'Blood Group', value: bag.blood_group },
-            { label: 'Quantity', value: `${bag.quantity} / ${bag.original_quantity}` },
-            { label: 'Donor Name', value: bag.donor_name },
-            { label: 'Donor CNIC', value: bag.donor_cnic },
-            { label: 'Expiry Date', value: bag.expiry_date },
-            { label: 'Screening', value: <StatusBadge label={bag.is_screening_cleared ? 'Cleared' : 'Pending'} tone={bag.is_screening_cleared ? 'success' : 'warning'} /> },
-          ]}
-        />
+        <DetailGrid>
+          <DetailItem label="Blood Group" value={bag.blood_group} />
+          <DetailItem label="Quantity" value={`${bag.quantity} / ${bag.original_quantity}`} />
+          <DetailItem label="Donor Name" value={bag.donor_name} />
+          <DetailItem label="Donor CNIC" value={bag.donor_cnic} />
+          <DetailItem label="Expiry Date" value={bag.expiry_date} />
+          <DetailItem label="Screening" value={<StatusBadge label={bag.is_screening_cleared ? 'Cleared' : 'Pending'} tone={bag.is_screening_cleared ? 'success' : 'warning'} />} />
+        </DetailGrid>
       </SectionCard>
 
       {bag.is_pre_screened && (

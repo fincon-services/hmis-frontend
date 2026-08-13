@@ -4,10 +4,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'antd';
+import { Truck, Car } from 'lucide-react';
 import { PageContainer } from '@/components/common/PageContainer';
 import { PageHeader } from '@/components/common/PageHeader';
 import { SectionCard } from '@/components/common/SectionCard';
 import { GeneratedForm } from '@/components/forms/GeneratedForm';
+import { StickyFormActions } from '@/components/forms/StickyFormActions';
 import { useFeedback } from '@/hooks/useFeedback';
 import { applyServerValidationErrors, getErrorMessage } from '@/utils/errors';
 import { useDestinationHospitals } from './DestinationHospitalsPage';
@@ -48,7 +50,7 @@ const schema = z
 type FormValues = z.infer<typeof schema>;
 
 const commonFields: FieldConfig<FormValues>[] = [
-  { type: 'number', name: 'patient_id', label: 'Patient ID', required: true, min: 1 },
+  { type: 'number', name: 'patient_id', label: 'Patient ID', required: true, min: 1, span: 3 },
 ];
 
 export function DispatchTripPage() {
@@ -76,44 +78,46 @@ export function DispatchTripPage() {
   const wardOptions = useMemo(() => (wardsQuery.data?.data ?? []).map((w) => ({ label: w.name, value: w.id })), [wardsQuery.data]);
 
   const contextFields: FieldConfig<FormValues>[] = [
-    { type: 'select', name: 'destination_hospital_id', label: 'Destination Hospital', required: true, options: hospitalOptions },
+    { type: 'select', name: 'destination_hospital_id', label: 'Destination Hospital', required: true, span: 4, options: hospitalOptions },
     {
       type: 'select',
       name: 'referred_from_department',
       label: 'Referred From',
       required: true,
+      span: 4,
       options: [
         { label: 'IPD', value: 'ipd' },
         { label: 'ER', value: 'er' },
       ],
     },
-    { type: 'select', name: 'ward_id', label: 'Ward', options: wardOptions },
-    { type: 'text', name: 'doctor_name', label: 'Doctor Name' },
     {
       type: 'select',
       name: 'ambulance_type',
       label: 'Ambulance Type',
       required: true,
+      span: 4,
       options: [
         { label: 'In-house', value: 'in_house' },
         { label: 'External', value: 'external' },
       ],
     },
+    { type: 'select', name: 'ward_id', label: 'Ward', span: 4, options: wardOptions },
+    { type: 'text', name: 'doctor_name', label: 'Doctor Name', span: 8 },
   ];
 
   const inHouseFields: FieldConfig<FormValues>[] = [
-    { type: 'section', label: 'Vehicle Assignment' },
-    { type: 'select', name: 'vehicle_id', label: 'Vehicle', required: true, options: vehicleOptions },
-    { type: 'select', name: 'driver_id', label: 'Driver', required: true, options: driverOptions },
-    { type: 'number', name: 'opening_reading', label: 'Opening Reading', min: 0, helpText: "Defaults to the vehicle's current reading if left blank" },
+    { type: 'section', label: 'Vehicle Assignment', icon: Truck },
+    { type: 'select', name: 'vehicle_id', label: 'Vehicle', required: true, span: 4, options: vehicleOptions },
+    { type: 'select', name: 'driver_id', label: 'Driver', required: true, span: 4, options: driverOptions },
+    { type: 'number', name: 'opening_reading', label: 'Opening Reading', min: 0, span: 4, helpText: "Defaults to the vehicle's current reading if left blank" },
   ];
 
   const externalFields: FieldConfig<FormValues>[] = [
-    { type: 'section', label: 'External Vehicle Details' },
-    { type: 'text', name: 'external_vehicle_number', label: 'External Vehicle Number', required: true },
-    { type: 'text', name: 'external_driver_name', label: 'External Driver Name', required: true },
-    { type: 'text', name: 'external_driver_cnic', label: 'External Driver CNIC' },
-    { type: 'text', name: 'external_driver_contact', label: 'External Driver Contact' },
+    { type: 'section', label: 'External Vehicle Details', icon: Car },
+    { type: 'text', name: 'external_vehicle_number', label: 'External Vehicle Number', required: true, span: 6 },
+    { type: 'text', name: 'external_driver_name', label: 'External Driver Name', required: true, span: 6 },
+    { type: 'text', name: 'external_driver_cnic', label: 'External Driver CNIC', span: 6 },
+    { type: 'text', name: 'external_driver_contact', label: 'External Driver Contact', span: 6 },
   ];
 
   const onSubmit = (values: FormValues) => {
@@ -150,14 +154,12 @@ export function DispatchTripPage() {
       <PageHeader title="Dispatch Ambulance" breadcrumbs={[{ label: 'Ambulance' }, { label: 'Trips', path: '/ambulance/trips' }, { label: 'Dispatch' }]} extra={<Button onClick={() => navigate(-1)}>Back</Button>} />
 
       <SectionCard title="Trip Details">
-        <form onSubmit={handleSubmit(onSubmit)} noValidate style={{ maxWidth: 520 }}>
+        <div style={{ maxWidth: 1040 }}>
           <GeneratedForm fields={commonFields} control={control} errors={errors} />
           <GeneratedForm fields={contextFields} control={control} errors={errors} />
           <GeneratedForm fields={ambulanceType === 'in_house' ? inHouseFields : externalFields} control={control} errors={errors} />
-          <Button type="primary" htmlType="submit" loading={dispatch.isPending}>
-            Dispatch Ambulance
-          </Button>
-        </form>
+          <StickyFormActions onSave={handleSubmit(onSubmit)} saveText="Dispatch Ambulance" saveLoading={dispatch.isPending} />
+        </div>
       </SectionCard>
     </PageContainer>
   );

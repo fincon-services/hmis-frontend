@@ -7,7 +7,8 @@ import { Button, List, Tabs, Space, Typography, Breadcrumb } from 'antd';
 import { Pencil, CalendarPlus, Pill, BedDouble, Scissors } from 'lucide-react';
 import { PageContainer } from '@/components/common/PageContainer';
 import { SectionCard } from '@/components/common/SectionCard';
-import { DetailCard } from '@/components/common/DetailCard';
+import { DetailGrid } from '@/components/common/DetailGrid';
+import { DetailItem } from '@/components/common/DetailItem';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { LoadingState } from '@/components/feedback/LoadingState';
 import { ErrorState } from '@/components/feedback/ErrorState';
@@ -47,22 +48,23 @@ const editSchema = z.object({
 type EditFormValues = z.infer<typeof editSchema>;
 
 const editFields: FieldConfig<EditFormValues>[] = [
-  { type: 'text', name: 'name', label: 'Patient Name', required: true },
+  { type: 'text', name: 'name', label: 'Patient Name', required: true, span: 6 },
   {
     type: 'select',
     name: 'gender',
     label: 'Gender',
     required: true,
+    span: 3,
     options: [
       { label: 'Male', value: 'male' },
       { label: 'Female', value: 'female' },
     ],
   },
-  { type: 'text', name: 'guardian_name', label: 'Guardian Name', required: true },
-  { type: 'text', name: 'guardian_phone', label: 'Guardian Phone' },
-  { type: 'text', name: 'guardian_cnic', label: 'Guardian CNIC' },
-  { type: 'text', name: 'referred_from', label: 'Referred From' },
-  { type: 'textarea', name: 'address', label: 'Address' },
+  { type: 'text', name: 'referred_from', label: 'Referred From', span: 3 },
+  { type: 'text', name: 'guardian_name', label: 'Guardian Name', required: true, span: 4 },
+  { type: 'text', name: 'guardian_phone', label: 'Guardian Phone', span: 4 },
+  { type: 'text', name: 'guardian_cnic', label: 'Guardian CNIC', span: 4 },
+  { type: 'textarea', name: 'address', label: 'Address', span: 12 },
 ];
 
 const visitSchema = z.object({
@@ -195,6 +197,7 @@ export function PatientDetailPage() {
         onCancel={() => setEditOpen(false)}
         onSubmit={editForm.handleSubmit(onEditSubmit)}
         confirmLoading={updatePatient.isPending}
+        size="lg"
       >
         <GeneratedForm fields={editFields} control={editForm.control} errors={editForm.formState.errors} />
       </FormModal>
@@ -262,22 +265,20 @@ function PatientIdentityBar({ patient, onEdit, onRecordVisit }: { patient: Patie
 function OverviewTab({ patient }: { patient: Patient }) {
   return (
     <SectionCard title="Demographics">
-      <DetailCard
-        fields={[
-          { label: 'MR Number', value: patient.mr_no },
-          { label: 'Name', value: patient.name },
-          { label: 'Gender', value: patient.gender === 'male' ? 'Male' : 'Female' },
-          { label: 'Age', value: formatPatientAge(patient.age) },
-          { label: 'Date of Birth', value: patient.date_of_birth },
-          { label: 'Origin', value: <StatusBadge label={patient.origin} tone={patient.origin === 'ER' ? 'error' : 'info'} /> },
-          { label: 'Guardian Name', value: patient.guardian_name },
-          { label: 'Guardian Phone', value: patient.guardian_phone },
-          { label: 'Guardian CNIC', value: patient.guardian_cnic },
-          { label: 'Referred From', value: patient.referred_from },
-          { label: 'Registration Date', value: patient.registration_date },
-          { label: 'Address', value: patient.address },
-        ]}
-      />
+      <DetailGrid>
+        <DetailItem label="MR Number" value={patient.mr_no} />
+        <DetailItem label="Name" value={patient.name} />
+        <DetailItem label="Gender" value={patient.gender === 'male' ? 'Male' : 'Female'} />
+        <DetailItem label="Age" value={formatPatientAge(patient.age)} />
+        <DetailItem label="Date of Birth" value={patient.date_of_birth} />
+        <DetailItem label="Origin" value={<StatusBadge label={patient.origin} tone={patient.origin === 'ER' ? 'error' : 'info'} />} />
+        <DetailItem label="Guardian Name" value={patient.guardian_name} />
+        <DetailItem label="Guardian Phone" value={patient.guardian_phone} />
+        <DetailItem label="Guardian CNIC" value={patient.guardian_cnic} />
+        <DetailItem label="Referred From" value={patient.referred_from} />
+        <DetailItem label="Registration Date" value={patient.registration_date} />
+        <DetailItem label="Address" value={patient.address} span={6} />
+      </DetailGrid>
     </SectionCard>
   );
 }

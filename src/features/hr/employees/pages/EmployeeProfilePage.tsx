@@ -3,15 +3,21 @@ import { useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Tabs, Button, Select, InputNumber, List, Timeline } from 'antd';
+import { Button, Select, Input, InputNumber, List, Timeline } from 'antd';
+import { IdCard, MapPin, Phone, Mail, Briefcase, Landmark, Wallet, Clock, FileText } from 'lucide-react';
+import { SectionTabs } from '@/components/forms/SectionTabs';
+import { FormGrid } from '@/components/forms/FormGrid';
+import { FormField } from '@/components/forms/FormField';
 import { PageContainer } from '@/components/common/PageContainer';
 import { PageHeader } from '@/components/common/PageHeader';
 import { SectionCard } from '@/components/common/SectionCard';
-import { DetailCard } from '@/components/common/DetailCard';
+import { DetailGrid } from '@/components/common/DetailGrid';
+import { DetailItem } from '@/components/common/DetailItem';
 import { LoadingState } from '@/components/feedback/LoadingState';
 import { ErrorState } from '@/components/feedback/ErrorState';
 import { EmptyState } from '@/components/feedback/EmptyState';
 import { GeneratedForm } from '@/components/forms/GeneratedForm';
+import { StickyFormActions } from '@/components/forms/StickyFormActions';
 import { FileUpload } from '@/components/common/FileUpload';
 import { InlineSubResourceCrud } from '@/lib/crud/InlineSubResourceCrud';
 import { useFeedback } from '@/hooks/useFeedback';
@@ -107,23 +113,25 @@ function PersonalTab({ employeeId }: { employeeId: number }) {
   });
 
   const fields: FieldConfig<FormValues>[] = [
-    { type: 'text', name: 'employee_code', label: 'Employee Code', required: true },
-    { type: 'text', name: 'first_name', label: 'First Name', required: true },
-    { type: 'text', name: 'middle_name', label: 'Middle Name' },
-    { type: 'text', name: 'last_name', label: 'Last Name', required: true },
-    { type: 'text', name: 'cnic', label: 'CNIC', required: true },
-    { type: 'select', name: 'education_level_id', label: 'Education Level', options: (educationLevelsQuery.data?.data ?? []).map((e) => ({ label: e.name, value: e.id })) },
+    { type: 'section', label: 'Identity', icon: IdCard },
+    { type: 'text', name: 'employee_code', label: 'Employee Code', required: true, span: 3 },
+    { type: 'text', name: 'first_name', label: 'First Name', required: true, span: 3 },
+    { type: 'text', name: 'middle_name', label: 'Middle Name', span: 3 },
+    { type: 'text', name: 'last_name', label: 'Last Name', required: true, span: 3 },
+    { type: 'text', name: 'cnic', label: 'CNIC', required: true, span: 3 },
+    { type: 'date', name: 'date_of_birth', label: 'Date of Birth', span: 3 },
     {
       type: 'select',
       name: 'gender',
       label: 'Gender',
+      span: 3,
       options: [
         { label: 'Male', value: 'male' },
         { label: 'Female', value: 'female' },
       ],
     },
-    { type: 'text', name: 'marital_status', label: 'Marital Status' },
-    { type: 'text', name: 'date_of_birth', label: 'Date of Birth (YYYY-MM-DD)' },
+    { type: 'text', name: 'marital_status', label: 'Marital Status', span: 3 },
+    { type: 'select', name: 'education_level_id', label: 'Education Level', span: 4, options: (educationLevelsQuery.data?.data ?? []).map((e) => ({ label: e.name, value: e.id })) },
   ];
 
   const onSubmit = (values: FormValues) => {
@@ -139,12 +147,10 @@ function PersonalTab({ employeeId }: { employeeId: number }) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate style={{ maxWidth: 480 }}>
+    <div style={{ maxWidth: 1040 }}>
       <GeneratedForm fields={fields} control={control} errors={errors} />
-      <Button type="primary" htmlType="submit" loading={update.isPending}>
-        Save
-      </Button>
-    </form>
+      <StickyFormActions onSave={handleSubmit(onSubmit)} saveText="Save" saveLoading={update.isPending} />
+    </div>
   );
 }
 
@@ -192,17 +198,20 @@ function ContactTab({ employeeId }: { employeeId: number }) {
   });
 
   const fields: FieldConfig<FormValues>[] = [
-    { type: 'text', name: 'address_line1', label: 'Address Line 1' },
-    { type: 'text', name: 'address_line2', label: 'Address Line 2' },
-    { type: 'text', name: 'city', label: 'City' },
-    { type: 'text', name: 'province', label: 'Province' },
-    { type: 'text', name: 'country', label: 'Country' },
-    { type: 'text', name: 'postal_code', label: 'Postal Code' },
-    { type: 'text', name: 'phone_home', label: 'Home Phone' },
-    { type: 'text', name: 'phone_mobile', label: 'Mobile Phone' },
-    { type: 'text', name: 'phone_work', label: 'Work Phone' },
-    { type: 'text', name: 'email_work', label: 'Work Email' },
-    { type: 'text', name: 'email_personal', label: 'Personal Email' },
+    { type: 'section', label: 'Address', icon: MapPin },
+    { type: 'text', name: 'address_line1', label: 'Address Line 1', span: 6 },
+    { type: 'text', name: 'address_line2', label: 'Address Line 2', span: 6 },
+    { type: 'text', name: 'city', label: 'City', span: 3 },
+    { type: 'text', name: 'province', label: 'Province', span: 3 },
+    { type: 'text', name: 'country', label: 'Country', span: 3 },
+    { type: 'text', name: 'postal_code', label: 'Postal Code', span: 3 },
+    { type: 'section', label: 'Phone Numbers', icon: Phone },
+    { type: 'text', name: 'phone_home', label: 'Home Phone', span: 4 },
+    { type: 'text', name: 'phone_mobile', label: 'Mobile Phone', span: 4 },
+    { type: 'text', name: 'phone_work', label: 'Work Phone', span: 4 },
+    { type: 'section', label: 'Email', icon: Mail },
+    { type: 'text', name: 'email_work', label: 'Work Email', span: 6 },
+    { type: 'text', name: 'email_personal', label: 'Personal Email', span: 6 },
   ];
 
   const onSubmit = (values: FormValues) => {
@@ -214,12 +223,10 @@ function ContactTab({ employeeId }: { employeeId: number }) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate style={{ maxWidth: 480 }}>
+    <div style={{ maxWidth: 1040 }}>
       <GeneratedForm fields={fields} control={control} errors={errors} />
-      <Button type="primary" htmlType="submit" loading={update.isPending}>
-        Save
-      </Button>
-    </form>
+      <StickyFormActions onSave={handleSubmit(onSubmit)} saveText="Save" saveLoading={update.isPending} />
+    </div>
   );
 }
 
@@ -261,20 +268,21 @@ function JobTab({ employeeId }: { employeeId: number }) {
   });
 
   const fields: FieldConfig<FormValues>[] = [
-    { type: 'select', name: 'job_title_id', label: 'Job Title', required: true, options: (jobTitlesQuery.data?.data ?? []).map((j) => ({ label: j.name, value: j.id })) },
-    { type: 'select', name: 'job_category_id', label: 'Job Category', required: true, options: (jobCategoriesQuery.data?.data ?? []).map((j) => ({ label: j.name, value: j.id })) },
-    { type: 'select', name: 'employment_status_id', label: 'Employment Status', required: true, options: (employmentStatusesQuery.data?.data ?? []).map((j) => ({ label: j.name, value: j.id })) },
+    { type: 'select', name: 'job_title_id', label: 'Job Title', required: true, span: 4, options: (jobTitlesQuery.data?.data ?? []).map((j) => ({ label: j.name, value: j.id })) },
+    { type: 'select', name: 'job_category_id', label: 'Job Category', required: true, span: 4, options: (jobCategoriesQuery.data?.data ?? []).map((j) => ({ label: j.name, value: j.id })) },
+    { type: 'select', name: 'employment_status_id', label: 'Employment Status', required: true, span: 4, options: (employmentStatusesQuery.data?.data ?? []).map((j) => ({ label: j.name, value: j.id })) },
     {
       type: 'number',
       name: 'department_id',
       label: 'Department ID',
       required: true,
       min: 1,
+      span: 3,
       helpText: 'The API has no department lookup endpoint — enter the numeric ID directly (see MODULE_MAP.md gap notes).',
     },
-    { type: 'text', name: 'hire_date', label: 'Hire Date (YYYY-MM-DD)', required: true },
-    { type: 'switch', name: 'is_active', label: 'Active' },
-    { type: 'number', name: 'settlement_amount', label: 'Settlement Amount', min: 0, helpText: 'Only used when marking the employee inactive' },
+    { type: 'date', name: 'hire_date', label: 'Hire Date', required: true, span: 3 },
+    { type: 'switch', name: 'is_active', label: 'Active', span: 3 },
+    { type: 'number', name: 'settlement_amount', label: 'Settlement Amount', min: 0, span: 3, helpText: 'Only used when marking the employee inactive' },
   ];
 
   const onSubmit = (values: FormValues) => {
@@ -285,12 +293,10 @@ function JobTab({ employeeId }: { employeeId: number }) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate style={{ maxWidth: 480 }}>
+    <div style={{ maxWidth: 1040 }}>
       <GeneratedForm fields={fields} control={control} errors={errors} />
-      <Button type="primary" htmlType="submit" loading={update.isPending}>
-        Save
-      </Button>
-    </form>
+      <StickyFormActions onSave={handleSubmit(onSubmit)} saveText="Save" saveLoading={update.isPending} />
+    </div>
   );
 }
 
@@ -321,14 +327,15 @@ function BankTab({ employeeId }: { employeeId: number }) {
       name: 'payment_type',
       label: 'Payment Type',
       required: true,
+      span: 4,
       options: [
         { label: 'Bank Transfer', value: 'bank' },
         { label: 'Cash', value: 'cash' },
         { label: 'Cheque', value: 'cheque' },
       ],
     },
-    { type: 'text', name: 'bank_account_no', label: 'Bank Account Number' },
-    { type: 'number', name: 'company_bank_account_id', label: 'Company Bank Account ID', min: 1, helpText: 'No lookup endpoint discovered yet for company bank accounts — enter the ID directly.' },
+    { type: 'text', name: 'bank_account_no', label: 'Bank Account Number', span: 4 },
+    { type: 'number', name: 'company_bank_account_id', label: 'Company Bank Account ID', min: 1, span: 4, helpText: 'No lookup endpoint discovered yet for company bank accounts — enter the ID directly.' },
   ];
 
   const onSubmit = (values: FormValues) => {
@@ -339,12 +346,10 @@ function BankTab({ employeeId }: { employeeId: number }) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate style={{ maxWidth: 480 }}>
+    <div style={{ maxWidth: 1040 }}>
       <GeneratedForm fields={fields} control={control} errors={errors} />
-      <Button type="primary" htmlType="submit" loading={update.isPending}>
-        Save
-      </Button>
-    </form>
+      <StickyFormActions onSave={handleSubmit(onSubmit)} saveText="Save" saveLoading={update.isPending} />
+    </div>
   );
 }
 
@@ -383,22 +388,23 @@ function SalaryTab({ employeeId }: { employeeId: number }) {
   });
 
   const fields: FieldConfig<FormValues>[] = [
-    { type: 'select', name: 'pay_grade_id', label: 'Pay Grade', required: true, options: (payGradesQuery.data?.data ?? []).map((p) => ({ label: p.name, value: p.id })) },
+    { type: 'select', name: 'pay_grade_id', label: 'Pay Grade', required: true, span: 4, options: (payGradesQuery.data?.data ?? []).map((p) => ({ label: p.name, value: p.id })) },
     {
       type: 'select',
       name: 'pay_frequency',
       label: 'Pay Frequency',
       required: true,
+      span: 4,
       options: [
         { label: 'Monthly', value: 'monthly' },
         { label: 'Weekly', value: 'weekly' },
         { label: 'Daily', value: 'daily' },
       ],
     },
-    { type: 'text', name: 'title', label: 'Title' },
-    { type: 'number', name: 'basic_salary', label: 'Basic Salary', required: true, min: 0 },
-    { type: 'switch', name: 'is_attendance_exempt', label: 'Attendance Exempt' },
-    { type: 'textarea', name: 'comments', label: 'Comments' },
+    { type: 'text', name: 'title', label: 'Title', span: 4 },
+    { type: 'number', name: 'basic_salary', label: 'Basic Salary', required: true, min: 0, span: 4 },
+    { type: 'switch', name: 'is_attendance_exempt', label: 'Attendance Exempt', span: 4 },
+    { type: 'textarea', name: 'comments', label: 'Comments', span: 12 },
   ];
 
   const onSubmit = (values: FormValues) => {
@@ -411,12 +417,10 @@ function SalaryTab({ employeeId }: { employeeId: number }) {
   if (salaryQuery.isLoading) return <LoadingState rows={3} />;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate style={{ maxWidth: 480 }}>
+    <div style={{ maxWidth: 1040 }}>
       <GeneratedForm fields={fields} control={control} errors={errors} />
-      <Button type="primary" htmlType="submit" loading={setSalary.isPending}>
-        Save Salary
-      </Button>
-    </form>
+      <StickyFormActions onSave={handleSubmit(onSubmit)} saveText="Save Salary" saveLoading={setSalary.isPending} />
+    </div>
   );
 }
 
@@ -504,11 +508,10 @@ function DocumentsTab({ employeeId }: { employeeId: number }) {
   return (
     <div>
       <SectionCard title="Upload Document">
-        <div style={{ display: 'flex', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
-          <div>
-            <label style={{ display: 'block', marginBottom: 6, fontSize: 13, fontWeight: 500 }}>Document Type</label>
+        <FormGrid>
+          <FormField label="Document Type" span={4}>
             <Select
-              style={{ width: 180 }}
+              style={{ width: '100%' }}
               value={docType}
               onChange={setDocType}
               options={[
@@ -518,14 +521,14 @@ function DocumentsTab({ employeeId }: { employeeId: number }) {
                 { label: 'Other', value: 'other' },
               ]}
             />
-          </div>
-          <div style={{ flex: 1, minWidth: 200 }}>
-            <label style={{ display: 'block', marginBottom: 6, fontSize: 13, fontWeight: 500 }}>Title</label>
-            <input value={title} onChange={(e) => setTitle(e.target.value)} style={{ width: '100%', padding: '4px 11px', border: '1px solid #d7dde3', borderRadius: 6 }} />
-          </div>
-        </div>
+          </FormField>
+          <FormField label="Title" span={8}>
+            <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. CNIC Front Copy" />
+          </FormField>
+        </FormGrid>
         <FileUpload
           buttonLabel="Upload"
+          hint="PDF, JPG, or PNG — max 5 MB."
           onUpload={(file, onProgress) =>
             new Promise<void>((resolve) => {
               if (!title) {
@@ -832,27 +835,25 @@ export function EmployeeProfilePage() {
       />
 
       <SectionCard title="Summary">
-        <DetailCard
-          fields={[
-            { label: 'Employee Code', value: employee.employee_code },
-            { label: 'CNIC', value: employee.cnic },
-            { label: 'Department', value: employee.department?.name },
-            { label: 'Job Title', value: employee.job_title?.name },
-            { label: 'Employment Status', value: employee.employment_status?.name },
-            { label: 'Hire Date', value: employee.hire_date },
-          ]}
-        />
+        <DetailGrid>
+          <DetailItem label="Employee Code" value={employee.employee_code} />
+          <DetailItem label="CNIC" value={employee.cnic} />
+          <DetailItem label="Department" value={employee.department?.name} />
+          <DetailItem label="Job Title" value={employee.job_title?.name} />
+          <DetailItem label="Employment Status" value={employee.employment_status?.name} />
+          <DetailItem label="Hire Date" value={employee.hire_date} />
+        </DetailGrid>
       </SectionCard>
 
-      <Tabs
+      <SectionTabs
         items={[
-          { key: 'personal', label: 'Personal', children: <PersonalTab employeeId={id} /> },
-          { key: 'contact', label: 'Contact', children: <ContactTab employeeId={id} /> },
-          { key: 'job', label: 'Job', children: <JobTab employeeId={id} /> },
-          { key: 'bank', label: 'Bank', children: <BankTab employeeId={id} /> },
-          { key: 'salary', label: 'Salary', children: <SalaryTab employeeId={id} /> },
-          { key: 'work-shifts', label: 'Work Shifts', children: <WorkShiftsTab employeeId={id} /> },
-          { key: 'documents', label: 'Documents', children: <DocumentsTab employeeId={id} /> },
+          { key: 'personal', label: 'Personal', icon: <IdCard size={14} />, children: <PersonalTab employeeId={id} /> },
+          { key: 'contact', label: 'Contact', icon: <MapPin size={14} />, children: <ContactTab employeeId={id} /> },
+          { key: 'job', label: 'Job', icon: <Briefcase size={14} />, children: <JobTab employeeId={id} /> },
+          { key: 'bank', label: 'Bank', icon: <Landmark size={14} />, children: <BankTab employeeId={id} /> },
+          { key: 'salary', label: 'Salary', icon: <Wallet size={14} />, children: <SalaryTab employeeId={id} /> },
+          { key: 'work-shifts', label: 'Work Shifts', icon: <Clock size={14} />, children: <WorkShiftsTab employeeId={id} /> },
+          { key: 'documents', label: 'Documents', icon: <FileText size={14} />, children: <DocumentsTab employeeId={id} /> },
           {
             key: 'emergency-contacts',
             label: 'Emergency Contacts',

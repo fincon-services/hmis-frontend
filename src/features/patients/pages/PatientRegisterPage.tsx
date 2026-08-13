@@ -1,12 +1,13 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Button } from 'antd';
+import { UserRound, Users, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PageContainer } from '@/components/common/PageContainer';
 import { PageHeader } from '@/components/common/PageHeader';
 import { SectionCard } from '@/components/common/SectionCard';
 import { GeneratedForm } from '@/components/forms/GeneratedForm';
+import { StickyFormActions } from '@/components/forms/StickyFormActions';
 import { useRegisterPatient } from '../hooks/useRegisterPatient';
 import { applyServerValidationErrors, getErrorMessage } from '@/utils/errors';
 import { useFeedback } from '@/hooks/useFeedback';
@@ -37,28 +38,17 @@ const schema = z
 type FormValues = z.infer<typeof schema>;
 
 const fields: FieldConfig<FormValues>[] = [
-  { type: 'section', label: 'Patient Information' },
-  { type: 'text', name: 'name', label: 'Patient Name', required: true, placeholder: 'Ali Khan' },
+  { type: 'section', label: 'Patient Information', icon: UserRound },
+  { type: 'text', name: 'name', label: 'Patient Name', required: true, placeholder: 'Ali Khan', span: 6 },
   {
     type: 'select',
     name: 'gender',
     label: 'Gender',
     required: true,
+    span: 3,
     options: [
       { label: 'Male', value: 'male' },
       { label: 'Female', value: 'female' },
-    ],
-  },
-  { type: 'number', name: 'age', label: 'Age', required: true, min: 0, step: 1 },
-  {
-    type: 'select',
-    name: 'age_type',
-    label: 'Age Unit',
-    required: true,
-    options: [
-      { label: 'Years', value: 'years' },
-      { label: 'Months', value: 'months' },
-      { label: 'Days', value: 'days' },
     ],
   },
   {
@@ -66,20 +56,34 @@ const fields: FieldConfig<FormValues>[] = [
     name: 'origin',
     label: 'Origin',
     required: true,
+    span: 3,
     options: [
       { label: 'OPD', value: 'OPD' },
       { label: 'ER', value: 'ER' },
     ],
   },
+  { type: 'number', name: 'age', label: 'Age', required: true, min: 0, step: 1, span: 3 },
+  {
+    type: 'select',
+    name: 'age_type',
+    label: 'Age Unit',
+    required: true,
+    span: 3,
+    options: [
+      { label: 'Years', value: 'years' },
+      { label: 'Months', value: 'months' },
+      { label: 'Days', value: 'days' },
+    ],
+  },
 
-  { type: 'section', label: 'Guardian Information', description: 'A phone number or CNIC is required to reach the guardian.' },
-  { type: 'text', name: 'guardian_name', label: 'Guardian Name', required: true, placeholder: 'Ahmed Khan' },
-  { type: 'text', name: 'guardian_phone', label: 'Guardian Phone', placeholder: '03001234567', helpText: 'Required unless CNIC is provided' },
-  { type: 'text', name: 'guardian_cnic', label: 'Guardian CNIC', placeholder: '12345-1234567-1' },
+  { type: 'section', label: 'Guardian Information', description: 'A phone number or CNIC is required to reach the guardian.', icon: Users },
+  { type: 'text', name: 'guardian_name', label: 'Guardian Name', required: true, placeholder: 'Ahmed Khan', span: 4 },
+  { type: 'text', name: 'guardian_phone', label: 'Guardian Phone', placeholder: '03001234567', helpText: 'Required unless CNIC is provided', span: 4 },
+  { type: 'text', name: 'guardian_cnic', label: 'Guardian CNIC', placeholder: '12345-1234567-1', span: 4 },
 
-  { type: 'section', label: 'Additional Information' },
-  { type: 'text', name: 'referred_from', label: 'Referred From' },
-  { type: 'textarea', name: 'address', label: 'Address' },
+  { type: 'section', label: 'Additional Information', icon: FileText },
+  { type: 'text', name: 'referred_from', label: 'Referred From', span: 4 },
+  { type: 'textarea', name: 'address', label: 'Address', span: 12 },
 ];
 
 export function PatientRegisterPage() {
@@ -123,15 +127,10 @@ export function PatientRegisterPage() {
         breadcrumbs={[{ label: 'Patients', path: '/patients' }, { label: 'Register' }]}
       />
       <SectionCard title="Patient & Guardian Details">
-        <form onSubmit={handleSubmit(onSubmit)} noValidate style={{ maxWidth: 640 }}>
+        <div style={{ maxWidth: 1040 }}>
           <GeneratedForm fields={fields} control={control} errors={errors} />
-          <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-            <Button type="primary" htmlType="submit" loading={register.isPending}>
-              Register Patient
-            </Button>
-            <Button onClick={() => navigate('/patients')}>Cancel</Button>
-          </div>
-        </form>
+          <StickyFormActions onCancel={() => navigate('/patients')} onSave={handleSubmit(onSubmit)} saveText="Register Patient" saveLoading={register.isPending} />
+        </div>
       </SectionCard>
     </PageContainer>
   );

@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button, Select } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { Plus } from 'lucide-react';
+import { Plus, Droplet, UserRound } from 'lucide-react';
 import { PageContainer } from '@/components/common/PageContainer';
 import { PageHeader } from '@/components/common/PageHeader';
 import { FilterBar } from '@/components/common/FilterBar';
@@ -39,19 +39,19 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 const fields: FieldConfig<FormValues>[] = [
-  { type: 'section', label: 'Bag Details' },
-  { type: 'select', name: 'blood_group', label: 'Blood Group', required: true, options: BLOOD_GROUPS.map((g) => ({ label: g, value: g })) },
-  { type: 'number', name: 'original_quantity', label: 'Quantity (bags)', required: true, min: 1 },
-  { type: 'text', name: 'bag_number', label: 'Bag Number' },
-  { type: 'text', name: 'expiry_date', label: 'Expiry Date (YYYY-MM-DD)' },
-  { type: 'switch', name: 'is_pre_screened', label: 'Pre-screened' },
+  { type: 'section', label: 'Bag Details', icon: Droplet },
+  { type: 'select', name: 'blood_group', label: 'Blood Group', required: true, span: 3, options: BLOOD_GROUPS.map((g) => ({ label: g, value: g })) },
+  { type: 'number', name: 'original_quantity', label: 'Quantity (bags)', required: true, min: 1, span: 3 },
+  { type: 'text', name: 'bag_number', label: 'Bag Number', span: 3 },
+  { type: 'date', name: 'expiry_date', label: 'Expiry Date', span: 3 },
+  { type: 'switch', name: 'is_pre_screened', label: 'Pre-screened', span: 3 },
 
-  { type: 'section', label: 'Donor Details' },
-  { type: 'text', name: 'donor_name', label: 'Donor Name' },
-  { type: 'text', name: 'donor_cnic', label: 'Donor CNIC' },
-  { type: 'text', name: 'guardian_name', label: 'Guardian Name' },
-  { type: 'text', name: 'guardian_phone', label: 'Guardian Phone' },
-  { type: 'textarea', name: 'remarks', label: 'Remarks' },
+  { type: 'section', label: 'Donor Details', icon: UserRound },
+  { type: 'text', name: 'donor_name', label: 'Donor Name', span: 3 },
+  { type: 'text', name: 'donor_cnic', label: 'Donor CNIC', span: 3 },
+  { type: 'text', name: 'guardian_name', label: 'Guardian Name', span: 3 },
+  { type: 'text', name: 'guardian_phone', label: 'Guardian Phone', span: 3 },
+  { type: 'textarea', name: 'remarks', label: 'Remarks', span: 12 },
 ];
 
 const columns: ColumnsType<BloodBag> = [
@@ -169,7 +169,7 @@ export function BloodBagsPage() {
         onEmptyAction={openCreate}
       />
 
-      <FormModal title="Receive Blood Bag" open={modalOpen} onCancel={() => setModalOpen(false)} onSubmit={handleSubmit(onSubmit)} confirmLoading={receive.isPending} width={600}>
+      <FormModal title="Receive Blood Bag" open={modalOpen} onCancel={() => setModalOpen(false)} onSubmit={handleSubmit(onSubmit)} confirmLoading={receive.isPending} size="lg">
         <GeneratedForm fields={fields} control={control} errors={errors} />
       </FormModal>
     </PageContainer>

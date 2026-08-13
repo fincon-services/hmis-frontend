@@ -1,8 +1,11 @@
 import type { Control, FieldErrors, FieldValues } from 'react-hook-form';
 import { Controller } from 'react-hook-form';
-import { Input, InputNumber, Switch, Select, TimePicker, Typography, Divider } from 'antd';
+import { Input, InputNumber, Switch, Select, DatePicker, TimePicker } from 'antd';
 import dayjs from 'dayjs';
-import type { FieldConfig } from './FieldConfig';
+import { FormGrid } from './FormGrid';
+import { FormField } from './FormField';
+import { FormSection } from './FormSection';
+import { defaultSpanFor, type FieldConfig } from './FieldConfig';
 
 interface GeneratedFormProps<T extends FieldValues> {
   fields: FieldConfig<T>[];
@@ -10,56 +13,39 @@ interface GeneratedFormProps<T extends FieldValues> {
   errors: FieldErrors<T>;
 }
 
+/**
+ * Renders a flat `FieldConfig[]` (with optional `section` markers) into a
+ * responsive 12-column grid (`FormGrid`), one `FormField` per entry sized by
+ * its resolved span. This is the app's single form renderer — `CrudResourcePage`,
+ * `InlineSubResourceCrud`, and every hand-built page that imports it all get
+ * the grid layout for free.
+ */
 export function GeneratedForm<T extends FieldValues>({ fields, control, errors }: GeneratedFormProps<T>) {
   return (
-    <>
+    <FormGrid>
       {fields.map((field, index) => {
         if (field.type === 'section') {
-          return (
-            <div key={`section-${field.label}`} style={{ marginTop: index === 0 ? 0 : 8, marginBottom: 16 }}>
-              {index > 0 && <Divider style={{ margin: '0 0 16px' }} />}
-              <Typography.Text strong style={{ fontSize: 13, display: 'block' }}>
-                {field.label}
-              </Typography.Text>
-              {field.description && (
-                <Typography.Text type="secondary" style={{ fontSize: 12.5 }}>
-                  {field.description}
-                </Typography.Text>
-              )}
-            </div>
-          );
+          return <FormSection key={`section-${field.label}`} label={field.label} description={field.description} icon={field.icon} first={index === 0} />;
         }
 
         const error = errors[field.name];
         const errorMessage = typeof error?.message === 'string' ? error.message : undefined;
-        const isSwitch = field.type === 'switch';
+        const span = field.span ?? defaultSpanFor(field);
+
+        if (field.type === 'switch') {
+          return (
+            <FormField key={field.name} label={field.label} required={field.required} helpText={field.helpText} error={errorMessage} span={span} inline>
+              <Controller
+                name={field.name}
+                control={control}
+                render={({ field: rhf }) => <Switch checked={!!rhf.value} onChange={rhf.onChange} disabled={field.disabled} />}
+              />
+            </FormField>
+          );
+        }
 
         return (
-          <div key={field.name} style={{ marginBottom: 16 }}>
-            <label
-              htmlFor={field.name}
-              style={{
-                display: isSwitch ? 'flex' : 'block',
-                alignItems: 'center',
-                justifyContent: isSwitch ? 'space-between' : undefined,
-                marginBottom: isSwitch ? 0 : 6,
-                fontSize: 13,
-                fontWeight: 500,
-              }}
-            >
-              <span>
-                {field.label} {field.required && <span style={{ color: '#b3261e' }}>*</span>}
-              </span>
-
-              {isSwitch && (
-                <Controller
-                  name={field.name}
-                  control={control}
-                  render={({ field: rhf }) => <Switch checked={!!rhf.value} onChange={rhf.onChange} disabled={field.disabled} />}
-                />
-              )}
-            </label>
-
+          <FormField key={field.name} label={field.label} htmlFor={field.name} required={field.required} helpText={field.helpText} error={errorMessage} span={span}>
             {field.type === 'text' && (
               <Controller
                 name={field.name}
@@ -137,6 +123,25 @@ export function GeneratedForm<T extends FieldValues>({ fields, control, errors }
               />
             )}
 
+            {field.type === 'date' && (
+              <Controller
+                name={field.name}
+                control={control}
+                render={({ field: rhf }) => (
+                  <DatePicker
+                    id={field.name}
+                    style={{ width: '100%' }}
+                    format="DD/MM/YYYY"
+                    status={error ? 'error' : undefined}
+                    placeholder={field.placeholder}
+                    disabled={field.disabled}
+                    value={rhf.value ? dayjs(rhf.value) : null}
+                    onChange={(val) => rhf.onChange(val ? val.format('YYYY-MM-DD') : '')}
+                  />
+                )}
+              />
+            )}
+
             {field.type === 'time' && (
               <Controller
                 name={field.name}
@@ -154,14 +159,9 @@ export function GeneratedForm<T extends FieldValues>({ fields, control, errors }
                 )}
               />
             )}
-
-            {field.helpText && !errorMessage && (
-              <div style={{ color: '#4d5c6b', fontSize: 12, marginTop: 4 }}>{field.helpText}</div>
-            )}
-            {errorMessage && <div style={{ color: '#b3261e', fontSize: 12, marginTop: 4 }}>{errorMessage}</div>}
-          </div>
+          </FormField>
         );
       })}
-    </>
+    </FormGrid>
   );
 }

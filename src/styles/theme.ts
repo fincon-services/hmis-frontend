@@ -28,6 +28,23 @@ export const statusColors: Record<string, { bg: string; text: string; border: st
   default: { bg: '#f0f1f3', text: colors.textSecondary, border: colors.border },
 };
 
+/**
+ * Shared spacing scale — used by FormGrid/FormField/FormSection/DetailGrid and
+ * any other layout primitive instead of ad hoc inline pixel values, so
+ * density stays consistent across the whole app.
+ */
+export const space = {
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 24,
+  xxl: 32,
+} as const;
+
+/** Compact-but-comfortable control height for a data-entry-dense HMIS — antd's default (32) reads cramped next to labels, 40+ wastes vertical space across long forms. */
+export const controlHeight = 36;
+
 export const antdTheme: ThemeConfig = {
   token: {
     colorPrimary: colors.primary,
@@ -46,6 +63,9 @@ export const antdTheme: ThemeConfig = {
     fontSize: 14,
     boxShadow: 'none',
     boxShadowSecondary: '0 1px 2px rgba(16, 24, 32, 0.06)',
+    controlHeight,
+    controlHeightSM: 28,
+    controlHeightLG: 40,
   },
   components: {
     Layout: {
@@ -62,9 +82,48 @@ export const antdTheme: ThemeConfig = {
       headerBg: '#f7f9fa',
       headerColor: colors.textPrimary,
       borderColor: colors.border,
+      cellPaddingBlock: 8,
+      cellPaddingInline: 12,
     },
     Card: {
       boxShadowTertiary: 'none',
+      headerPadding: 14,
+      bodyPadding: 16,
+    },
+    Form: {
+      itemMarginBottom: 14,
+      verticalLabelPadding: '0 0 4px',
+      labelFontSize: 13,
+    },
+    Select: {
+      controlHeight,
+    },
+    InputNumber: {
+      controlHeight,
+    },
+    DatePicker: {
+      controlHeight,
+    },
+    Input: {
+      controlHeight,
+    },
+    Modal: {
+      headerBg: colors.bgContainer,
+      titleFontSize: 15,
+      padding: 20,
+      paddingContentHorizontalLG: 24,
+    },
+    Descriptions: {
+      titleMarginBottom: 10,
+      labelBg: '#f7f9fa',
+    },
+    Tabs: {
+      horizontalMargin: '0 0 12px 0',
+      cardPadding: '8px 14px',
+      titleFontSize: 13,
+    },
+    Drawer: {
+      paddingLG: 20,
     },
   },
 };

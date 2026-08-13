@@ -16,10 +16,10 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, breadcrumbs, extra, description }: PageHeaderProps) {
   return (
-    <div style={{ marginBottom: 20 }}>
+    <div style={{ marginBottom: 16 }}>
       {breadcrumbs && breadcrumbs.length > 0 && (
         <Breadcrumb
-          style={{ marginBottom: 8 }}
+          style={{ marginBottom: 6, fontSize: 12.5 }}
           items={breadcrumbs.map((b) => ({
             title: b.path ? <Link to={b.path}>{b.label}</Link> : b.label,
           }))}
@@ -27,11 +27,11 @@ export function PageHeader({ title, breadcrumbs, extra, description }: PageHeade
       )}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
         <div>
-          <Typography.Title level={4} style={{ margin: 0 }}>
+          <Typography.Title level={4} style={{ margin: 0, fontSize: 18 }}>
             {title}
           </Typography.Title>
           {description && (
-            <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+            <Typography.Text type="secondary" style={{ fontSize: 12.5 }}>
               {description}
             </Typography.Text>
           )}
