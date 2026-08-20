@@ -1,4 +1,4 @@
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, keepPreviousData } from '@tanstack/react-query';
 import { patientsApi } from '../api/patientsApi';
 import { queryClient } from '@/api/queryClient';
 import type { PatientQueueParams, ReferPatientRequest } from '../types/patient.types';
@@ -7,6 +7,7 @@ export function usePatientQueue(params: PatientQueueParams) {
   return useQuery({
     queryKey: ['patients', 'queue', params],
     queryFn: () => patientsApi.queue(params),
+    placeholderData: keepPreviousData,
   });
 }
 

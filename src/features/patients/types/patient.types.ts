@@ -104,6 +104,9 @@ export interface PatientQueueParams {
   origin: Origin;
   referred_to: string;
   date?: string;
+  search?: string;
+  per_page?: number;
+  page?: number;
 }
 
 export interface PatientListParams {

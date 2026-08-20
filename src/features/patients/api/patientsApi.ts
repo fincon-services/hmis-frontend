@@ -38,8 +38,8 @@ export const patientsApi = {
 
   queue: (params: PatientQueueParams) =>
     apiClient
-      .get<CollectionResponse<QueuedReferral>>('/patients/queue', { params, screenKey: QUEUE_SCREEN })
-      .then((r) => r.data.data),
+      .get<PaginatedResponse<QueuedReferral> | CollectionResponse<QueuedReferral>>('/patients/queue', { params, screenKey: QUEUE_SCREEN })
+      .then((r) => r.data),
 
   refer: (opdVisitId: number, payload: ReferPatientRequest) =>
     apiClient

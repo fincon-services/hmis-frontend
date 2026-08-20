@@ -23,10 +23,14 @@ export function DashboardPage() {
   const patientsQuery = usePatients({ per_page: 1 });
   const totalPatients = patientsQuery.data && isPaginated(patientsQuery.data) ? patientsQuery.data.meta.total : undefined;
 
-  const vitalsQueue = useVitalsQueue('OPD', today);
-  const consultationQueue = usePatientQueue({ origin: 'OPD', referred_to: 'MO', date: today });
-  const labQueue = usePatientQueue({ origin: 'OPD', referred_to: 'Lab', date: today });
-  const radiologyQueue = usePatientQueue({ origin: 'OPD', referred_to: 'Radiology', date: today });
+  const vitalsQueue = useVitalsQueue({ origin: 'OPD', date: today, per_page: 1 });
+  const vitalsPending = vitalsQueue.data && isPaginated(vitalsQueue.data) ? vitalsQueue.data.meta.total : vitalsQueue.data?.data.length;
+  const consultationQueue = usePatientQueue({ origin: 'OPD', referred_to: 'MO', date: today, per_page: 1 });
+  const consultationPending = consultationQueue.data && isPaginated(consultationQueue.data) ? consultationQueue.data.meta.total : consultationQueue.data?.data.length;
+  const labQueue = usePatientQueue({ origin: 'OPD', referred_to: 'Lab', date: today, per_page: 1 });
+  const labPending = labQueue.data && isPaginated(labQueue.data) ? labQueue.data.meta.total : labQueue.data?.data.length;
+  const radiologyQueue = usePatientQueue({ origin: 'OPD', referred_to: 'Radiology', date: today, per_page: 1 });
+  const radiologyPending = radiologyQueue.data && isPaginated(radiologyQueue.data) ? radiologyQueue.data.meta.total : radiologyQueue.data?.data.length;
   const pendingDispense = usePendingDispense();
   const pendingApprovals = usePendingApprovals();
 
@@ -46,16 +50,16 @@ export function DashboardPage() {
         </Typography.Paragraph>
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={12} lg={8} xl={4}>
-            <StatCard label="Vitals Pending" value={vitalsQueue.data?.length} icon={Activity} loading={vitalsQueue.isLoading} onClick={() => navigate('/vitals/queue')} />
+            <StatCard label="Vitals Pending" value={vitalsPending} icon={Activity} loading={vitalsQueue.isLoading} onClick={() => navigate('/vitals/queue')} />
           </Col>
           <Col xs={24} sm={12} lg={8} xl={4}>
-            <StatCard label="Consultation Pending" value={consultationQueue.data?.length} icon={Stethoscope} loading={consultationQueue.isLoading} onClick={() => navigate('/consultation/queue')} />
+            <StatCard label="Consultation Pending" value={consultationPending} icon={Stethoscope} loading={consultationQueue.isLoading} onClick={() => navigate('/consultation/queue')} />
           </Col>
           <Col xs={24} sm={12} lg={8} xl={4}>
-            <StatCard label="Lab Pending" value={labQueue.data?.length} icon={FlaskConical} loading={labQueue.isLoading} onClick={() => navigate('/laboratory/queue')} />
+            <StatCard label="Lab Pending" value={labPending} icon={FlaskConical} loading={labQueue.isLoading} onClick={() => navigate('/laboratory/queue')} />
           </Col>
           <Col xs={24} sm={12} lg={8} xl={4}>
-            <StatCard label="Radiology Pending" value={radiologyQueue.data?.length} icon={Radiation} loading={radiologyQueue.isLoading} onClick={() => navigate('/radiology/queue')} />
+            <StatCard label="Radiology Pending" value={radiologyPending} icon={Radiation} loading={radiologyQueue.isLoading} onClick={() => navigate('/radiology/queue')} />
           </Col>
           <Col xs={24} sm={12} lg={8} xl={4}>
             <StatCard label="Pharmacy Pending" value={pendingDispense.data?.length} icon={Pill} loading={pendingDispense.isLoading} onClick={() => navigate('/pharmacy/pending-dispense')} />

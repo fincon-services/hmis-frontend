@@ -1,19 +1,19 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, keepPreviousData } from '@tanstack/react-query';
 import { vitalsApi } from '../api/vitalsApi';
 import { queryClient } from '@/api/queryClient';
-import type { Origin } from '@/features/patients/types/patient.types';
-import type { RecordVitalsRequest } from '../types/vitals.types';
+import type { RecordVitalsRequest, VitalsQueueParams } from '../types/vitals.types';
 
 export const vitalsKeys = {
-  queue: (origin: Origin, date?: string) => ['vitals', 'queue', origin, date] as const,
+  queue: (params: VitalsQueueParams) => ['vitals', 'queue', params] as const,
   forVisit: (opdVisitId: number) => ['vitals', 'visit', opdVisitId] as const,
   forPatient: (patientId: number) => ['vitals', 'patient', patientId] as const,
 };
 
-export function useVitalsQueue(origin: Origin, date?: string) {
+export function useVitalsQueue(params: VitalsQueueParams) {
   return useQuery({
-    queryKey: vitalsKeys.queue(origin, date),
-    queryFn: () => vitalsApi.queue(origin, date),
+    queryKey: vitalsKeys.queue(params),
+    queryFn: () => vitalsApi.queue(params),
+    placeholderData: keepPreviousData,
   });
 }
 

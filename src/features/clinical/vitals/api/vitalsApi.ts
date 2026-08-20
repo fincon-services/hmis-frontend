@@ -1,16 +1,15 @@
 import { apiClient } from '@/api/client';
-import type { CollectionResponse } from '@/types/api';
-import type { Origin } from '@/features/patients/types/patient.types';
-import type { NurseQueueEntry, PatientVital, RecordVitalsRequest, WeightRange } from '../types/vitals.types';
+import type { CollectionResponse, PaginatedResponse } from '@/types/api';
+import type { NurseQueueEntry, PatientVital, RecordVitalsRequest, VitalsQueueParams, WeightRange } from '../types/vitals.types';
 
 const RECORDING_SCREEN = 'vitals.recording';
 const QUEUE_SCREEN = 'vitals.queue';
 
 export const vitalsApi = {
-  queue: (origin: Origin, date?: string) =>
+  queue: (params: VitalsQueueParams) =>
     apiClient
-      .get<CollectionResponse<NurseQueueEntry>>('/vitals/queue', { params: { origin, date }, screenKey: QUEUE_SCREEN })
-      .then((r) => r.data.data),
+      .get<PaginatedResponse<NurseQueueEntry> | CollectionResponse<NurseQueueEntry>>('/vitals/queue', { params, screenKey: QUEUE_SCREEN })
+      .then((r) => r.data),
 
   forVisit: (opdVisitId: number) =>
     apiClient

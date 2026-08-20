@@ -1,5 +1,8 @@
 import type { Origin, Patient } from '@/features/patients/types/patient.types';
 
+/** Matches VitalTypeResource — 'blood_pressure' renders as Systolic/Diastolic sub-fields, everything else is a single numeric value. */
+export type VitalValueType = 'numeric' | 'blood_pressure';
+
 export interface VitalType {
   id: number;
   name: string;
@@ -7,6 +10,14 @@ export interface VitalType {
   applies_to_er: boolean;
   applies_to_ipd: boolean;
   is_active: boolean;
+  value_type: VitalValueType;
+  /** Systolic lower bound for blood_pressure types, or the only lower bound for numeric types. Null = unconfigured/unbounded. */
+  min_value: number | null;
+  max_value: number | null;
+  /** Diastolic bounds — only meaningful when value_type is 'blood_pressure'. */
+  min_value_secondary: number | null;
+  max_value_secondary: number | null;
+  unit: string | null;
 }
 
 export interface PatientVital {
@@ -38,4 +49,12 @@ export interface WeightRange {
 
 export interface RecordVitalsRequest {
   vitals: Record<string, string>;
+}
+
+export interface VitalsQueueParams {
+  origin: Origin;
+  date?: string;
+  search?: string;
+  per_page?: number;
+  page?: number;
 }
